@@ -1,0 +1,150 @@
+{
+  "dataset": {
+    "n_test": 4500,
+    "positive_rate": 0.22111111111111112,
+    "data_sha256": "13c02a123402c9caec69e738c8e69c8aea125ca4dd33a8da92bc38ce5e737a82"
+  },
+  "model": {
+    "version": "creditguard-logreg-20261113",
+    "auc": 0.754794514656019,
+    "pr_auc": 0.5049070964242628,
+    "brier": 0.14209422137289937
+  },
+  "thresholds": {
+    "review": 0.3687879174662096,
+    "decline": 0.6765778235848007,
+    "capacity": 0.15
+  },
+  "at_capacity": {
+    "threshold": 0.3687879174662096,
+    "accuracy": 0.8084444444444444,
+    "precision": 0.5988112927191679,
+    "recall": 0.4050251256281407,
+    "f1": 0.4832134292565947,
+    "tn": 3235,
+    "fp": 270,
+    "fn": 592,
+    "tp": 403
+  },
+  "at_0.5": {
+    "threshold": 0.5,
+    "accuracy": 0.8055555555555556,
+    "precision": 0.6304347826086957,
+    "recall": 0.2914572864321608,
+    "f1": 0.3986254295532646,
+    "tn": 3335,
+    "fp": 170,
+    "fn": 705,
+    "tp": 290
+  },
+  "policies": {
+    "P0_全部通过": {
+      "n": 4500,
+      "auto_approve_share": 1.0,
+      "review_share": 0.0,
+      "decline_share": 0.0,
+      "auto_approve_default_rate": 0.22111111111111112,
+      "defaulters_auto_approved_share": 1.0,
+      "defaulters_in_review_or_decline_share": 0.0,
+      "good_customers_declined_share": 0.0,
+      "review_default_rate": 0.0
+    },
+    "P1_模型0.5阈值自动决策": {
+      "n": 4500,
+      "auto_approve_share": 0.8977777777777778,
+      "review_share": 0.0,
+      "decline_share": 0.10222222222222223,
+      "auto_approve_default_rate": 0.1745049504950495,
+      "defaulters_auto_approved_share": 0.7085427135678392,
+      "defaulters_in_review_or_decline_share": 0.2914572864321608,
+      "good_customers_declined_share": 0.04850213980028531,
+      "review_default_rate": 0.6304347826086957
+    },
+    "P2_模型0.5+边界复核": {
+      "n": 4500,
+      "auto_approve_share": 0.8831111111111111,
+      "review_share": 0.03333333333333333,
+      "decline_share": 0.08355555555555555,
+      "auto_approve_default_rate": 0.1673376950176145,
+      "defaulters_auto_approved_share": 0.6683417085427136,
+      "defaulters_in_review_or_decline_share": 0.3316582914572864,
+      "good_customers_declined_share": 0.038231098430813126,
+      "review_default_rate": 0.6273764258555133
+    },
+    "P3_Agent容量15%分级": {
+      "n": 4500,
+      "auto_approve_share": 0.8504444444444444,
+      "review_share": 0.10266666666666667,
+      "decline_share": 0.04688888888888889,
+      "auto_approve_default_rate": 0.15469035798275413,
+      "defaulters_auto_approved_share": 0.5949748743718593,
+      "defaulters_in_review_or_decline_share": 0.4050251256281407,
+      "good_customers_declined_share": 0.01825962910128388,
+      "review_default_rate": 0.5988112927191679
+    }
+  },
+  "capacity_sweep": [
+    {
+      "capacity": 0.05,
+      "threshold": 0.6635417483470321,
+      "auto_approve_share": 0.95,
+      "auto_approve_default_rate": 0.19625730994152046,
+      "caught_default_share": 0.15678391959798996,
+      "review_default_rate": 0.6933333333333334
+    },
+    {
+      "capacity": 0.1,
+      "threshold": 0.507431288295505,
+      "auto_approve_share": 0.9,
+      "auto_approve_default_rate": 0.17530864197530865,
+      "caught_default_share": 0.2864321608040201,
+      "review_default_rate": 0.6333333333333333
+    },
+    {
+      "capacity": 0.15,
+      "threshold": 0.367673224591766,
+      "auto_approve_share": 0.85,
+      "auto_approve_default_rate": 0.15477124183006535,
+      "caught_default_share": 0.4050251256281407,
+      "review_default_rate": 0.597037037037037
+    },
+    {
+      "capacity": 0.2,
+      "threshold": 0.308759687194157,
+      "auto_approve_share": 0.8,
+      "auto_approve_default_rate": 0.14083333333333334,
+      "caught_default_share": 0.4904522613065327,
+      "review_default_rate": 0.5422222222222223
+    },
+    {
+      "capacity": 0.3,
+      "threshold": 0.22518785492128737,
+      "auto_approve_share": 0.7,
+      "auto_approve_default_rate": 0.12317460317460317,
+      "caught_default_share": 0.6100502512562814,
+      "review_default_rate": 0.44962962962962966
+    },
+    {
+      "capacity": 0.5,
+      "threshold": 0.1434248334594753,
+      "auto_approve_share": 0.5,
+      "auto_approve_default_rate": 0.104,
+      "caught_default_share": 0.7648241206030151,
+      "review_default_rate": 0.3382222222222222
+    }
+  ],
+  "audit_ablation": {
+    "n_corrupted": 225,
+    "blocked": 169,
+    "warned": 56,
+    "silently_scored": 225,
+    "block_rate": 0.7511111111111111,
+    "silent_accept_rate_without_audit": 1.0
+  },
+  "agent_runtime": {
+    "n": 300,
+    "completed": 300,
+    "mean_ms": 12.97,
+    "records_per_second": 77.1
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "n": 7,
+  "by_action": {
+    "退回补件": 2,
+    "人工拒绝": 1,
+    "自动通过": 3,
+    "人工通过": 1
+  },
+  "by_band": {
+    "C": 3,
+    "A": 3,
+    "B": 1
+  },
+  "scored": 5,
+  "rejected_by_audit": 2,
+  "mean_latency_ms": 12.3,
+  "degraded": false,
+  "skills": [
+    {
+      "name": "credit-data-audit",
+      "version": "1.0.0",
+      "license": "Apache-2.0",
+      "description": "校验信贷申请批量输入的字段完整性与取值范围，区分\"可继续评分\"和\"必须退回补件\"的记录，并给出每条记录的异常标记。用于 Agent 在打分前做数据质量闸门。"
+    },
+    {
+      "name": "review-policy",
+      "version": "1.0.0",
+      "license": "Apache-2.0",
+      "description": "把模型概率与数据质量标记映射为风险等级、建议动作与复核优先级，按人工复核容量决定阈值，保证任何\"拒贷\"建议都必须人工确认。"
+    },
+    {
+      "name": "risk-reason-codes",
+      "version": "unknown",
+      "license": "unknown",
+      "description": ""
+    }
+  ],
+  "model": "logreg_v1.json"
+}

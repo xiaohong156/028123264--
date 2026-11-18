@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreditGuard · 信贷初审风险复核 Agent</title>
+<style>
+  :root { --ink:#16202b; --muted:#66707c; --line:#e3e8ee; --blue:#2e5e8c; --red:#c0504d; --green:#4f8a5b; --bg:#f6f8fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.75; }
+  header.hero { background:linear-gradient(135deg,#16202b,#2e5e8c); color:#fff; padding:56px 24px 42px; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 20px; }
+  .hero h1 { font-size:34px; margin:0 0 10px; letter-spacing:.5px; }
+  .hero p { margin:0; color:#c9d6e3; font-size:15px; }
+  .badges { margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:5px 12px; font-size:13px; }
+  main { max-width:1080px; margin:0 auto; padding:34px 20px 60px; }
+  section { margin-bottom:42px; }
+  h2 { font-size:21px; margin:0 0 14px; padding-left:10px; border-left:4px solid var(--blue); }
+  h3 { font-size:15px; margin:18px 0 8px; }
+  p { margin:8px 0; }
+  .grid { display:grid; gap:16px; }
+  .g3 { grid-template-columns:repeat(3,1fr); }
+  .g2 { grid-template-columns:repeat(2,1fr); }
+  @media (max-width:820px){ .g3,.g2 { grid-template-columns:1fr; } }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .card b { color:var(--blue); }
+  img.shot { width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  .cap { font-size:12px; color:var(--muted); text-align:center; margin-top:6px; }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:14px; }
+  th,td { padding:9px 12px; border-bottom:1px solid var(--line); text-align:center; }
+  th { background:#eef3f8; font-weight:600; }
+  tr:last-child td { border-bottom:0; }
+  .hl { background:#f0f7ef; font-weight:600; }
+  pre { background:#16202b; color:#dbe4ee; padding:14px 16px; border-radius:8px; overflow:auto; font-size:13px; line-height:1.7; }
+  code { background:#eef2f6; padding:2px 6px; border-radius:4px; font-size:13px; }
+  .links a { display:inline-block; margin-right:14px; color:var(--blue); text-decoration:none; font-size:14px; }
+  .links a:hover { text-decoration:underline; }
+  footer { border-top:1px solid var(--line); color:var(--muted); font-size:12px; text-align:center; padding:22px; }
+  .tag { display:inline-block; font-size:12px; color:#fff; background:var(--blue); border-radius:4px; padding:1px 7px; margin-right:6px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>CreditGuard · 信贷初审风险复核 Agent</h1>
+    <p>逻辑回归评分卡 + 三个可复用技能 + 人工复核：把"给一个分数"变成"给证据、给分级、留痕迹"</p>
+    <div class="badges">
+      <span class="badge">AUC 0.755</span>
+      <span class="badge">PR-AUC 0.505</span>
+      <span class="badge">12.9 ms / 条</span>
+      <span class="badge">16 个单元测试</span>
+      <span class="badge">Apache-2.0</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>它解决什么问题</h2>
+    <div class="grid g3">
+      <div class="card"><b>复核员只看分数</b><br>不知道哪几项指标把风险推高，只能逐单翻账单。</div>
+      <div class="card"><b>0.5 阈值误伤好客户</b><br>为了多抓违约，把约 4.85% 的好客户一起拒掉。</div>
+      <div class="card"><b>脏数据静默进模型</b><br>年龄 15 岁、额度 3000 元也能得到一个"正常"分数。</div>
+    </div>
+    <p style="margin-top:12px">CreditGuard 把流程改成：<b>数据审计 → 评分 → 原因码 → 分级建议 → 人工确认 → 导出留痕</b>。任何"建议拒绝"都必须由人签署，系统不会自动拒贷。</p>
+  </section>
+
+  <section>
+    <h2>工作流</h2>
+    <img class="shot" src="assets/flow.png" alt="CreditGuard 工作流">
+    <div class="cap">技能负责判断，模型负责概率，Agent 负责编排与留痕；全部步骤写入 events.jsonl</div>
+  </section>
+
+  <section>
+    <h2>实测结果（测试集 4500 条）</h2>
+    <table>
+      <thead><tr><th>策略</th><th>自动通过</th><th>自动通过人群违约率</th><th>违约者捕获率</th><th>好客户被拒</th></tr></thead>
+      <tbody>
+        <tr><td>P0 全部通过</td><td>100%</td><td>22.1%</td><td>0%</td><td>0%</td></tr>
+        <tr><td>P1 模型 0.5 阈值自动决策</td><td>89.8%</td><td>17.5%</td><td>29.1%</td><td>4.85%</td></tr>
+        <tr><td>P2 0.5 + 边界复核</td><td>88.3%</td><td>16.7%</td><td>33.2%</td><td>3.82%</td></tr>
+        <tr class="hl"><td>P3 Agent 15% 分级</td><td>85.0%</td><td>15.5%</td><td>40.5%</td><td>1.83%</td></tr>
+      </tbody>
+    </table>
+    <img class="shot" style="margin-top:16px" src="assets/policy.png" alt="策略对比">
+    <div class="cap">同样的复核产能下，自动通过人群违约率下降 6.6 个百分点，好客户误伤减少约 3 个百分点</div>
+  </section>
+
+  <section>
+    <h2>怎么演示</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>① 命令行（无需训练）</h3>
+        <pre>git clone https://github.com/xiaohong156/028123264--.git
+cd 028123264--
+pip install -r requirements.txt
+python scripts/demo_offline.py</pre>
+        <p>输出复核摘要、Excel 清单与逐步审计日志。</p>
+      </div>
+      <div class="card">
+        <h3>② 网页原型</h3>
+        <pre>python web/server.py
+# 打开 http://127.0.0.1:8000</pre>
+        <p>三种预设：低风险 / 高风险 / 脏数据，实时看到概率、原因码与建议动作；Codespaces 会自动转发端口。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>运行记录</h2>
+    <div class="grid g2">
+      <div>
+        <img class="shot" src="assets/console.png" alt="终端运行记录">
+        <div class="cap">一次完整运行：脏数据退回、低风险自动通过、高风险转人工并给出原因码</div>
+      </div>
+      <div>
+        <img class="shot" src="assets/excel.png" alt="Excel 复核清单">
+        <div class="cap">导出给复核员的 Excel 清单：等级着色、原因码、人工结论，汇总页用公式</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>三个技能与复用</h2>
+    <div class="grid g3">
+      <div class="card"><span class="tag">skill</span><b>credit-data-audit</b><br>评分前做数据闸门：缺字段/越界/未知编码 → error 退回、warn 强制人工。</div>
+      <div class="card"><span class="tag">skill</span><b>risk-reason-codes</b><br>把对数几率贡献翻译成 3 条风险因素与 2 条缓释因素，不输出通过/拒绝结论。</div>
+      <div class="card"><span class="tag">skill</span><b>review-policy</b><br>按复核容量给 A/B/C 分级与建议动作；建议拒绝必须人工确认。</div>
+    </div>
+    <p style="margin-top:12px">复用了 <a href="https://github.com/anthropics/skills">anthropics/skills</a>（Apache-2.0，commit <code>2c5958e</code>）的 <code>quick_validate.py</code> 做技能规范校验，并修复了它在 Windows 中文环境下的编码问题；数据来自 UCI（CC BY 4.0）。</p>
+  </section>
+
+  <section>
+    <h2>复现全部实验</h2>
+    <pre>python scripts/download_data.py     # 下载 UCI 数据
+python scripts/train.py             # 训练评分卡
+python scripts/evaluate.py --n 4500 # 基线与 Agent 对比
+python -m pytest tests -q           # 16 个单元测试
+python tools/skill_lint.py          # 技能规范校验</pre>
+    <p class="links">
+      <a href="https://github.com/xiaohong156/028123264--">GitHub 仓库</a>
+      <a href="demo.md">5 分钟演示脚本</a>
+      <a href="assets/report.pdf">课程报告 PDF</a>
+    </p>
+  </section>
+</main>
+<footer>CreditGuard v1.0 · 机器学习课程期末项目 · 数据：UCI Default of Credit Card Clients (CC BY 4.0) · 代码 Apache-2.0</footer>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreditGuard · 信贷初审风险复核演示</title>
+<style>
+  :root { --ink:#1f2a37; --muted:#6b7280; --line:#e5e7eb; --blue:#2e5e8c; --red:#c0504d; --green:#4f8a5b; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color:var(--ink); background:#f5f7fa; }
+  header { background:#1f2a37; color:#fff; padding:18px 28px; }
+  header h1 { margin:0; font-size:20px; font-weight:600; }
+  header p { margin:6px 0 0; color:#c7d2de; font-size:13px; }
+  main { max-width:1180px; margin:22px auto; padding:0 18px; display:grid; grid-template-columns: 1.15fr .85fr; gap:20px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px; }
+  h2 { font-size:15px; margin:0 0 12px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .row label { flex:1 1 120px; font-size:12px; color:var(--muted); display:flex; flex-direction:column; gap:4px; }
+  input, select { border:1px solid var(--line); border-radius:6px; padding:7px 8px; font-size:13px; color:var(--ink); background:#fff; }
+  input:focus, select:focus { outline:2px solid #bcd3ea; border-color:#9db9d5; }
+  .actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  button { border:0; border-radius:8px; padding:10px 16px; font-size:14px; cursor:pointer; }
+  button.primary { background:var(--blue); color:#fff; }
+  button.ghost { background:#eef3f8; color:var(--blue); }
+  .hint { font-size:12px; color:var(--muted); line-height:1.6; margin-top:10px; }
+  .result-empty { color:var(--muted); font-size:14px; padding:26px 0; text-align:center; }
+  .badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; color:#fff; }
+  .A { background:var(--green); } .B { background:#d4932f; } .C { background:var(--red); }
+  .prob { font-size:40px; font-weight:700; margin:8px 0 2px; }
+  .kv { display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:6px 0; border-bottom:1px dashed var(--line); }
+  .kv span:first-child { color:var(--muted); }
+  ul.factors { margin:10px 0 0; padding-left:18px; font-size:13px; line-height:1.9; }
+  .flags { margin-top:10px; font-size:12px; color:#9a3412; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:8px 10px; }
+  .note { font-size:12px; color:var(--muted); margin-top:14px; line-height:1.7; }
+  code { background:#f1f5f9; padding:1px 5px; border-radius:4px; font-size:12px; }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:18px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CreditGuard · 信贷初审风险复核 Agent</h1>
+  <p>输入一笔申请 → 数据审计 → 逻辑回归评分 → 原因码 → 分级建议（拒贷必须人工确认）</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>申请信息（23 个字段）</h2>
+    <div class="row">
+      <label>授信额度 LIMIT_BAL<input name="LIMIT_BAL" value="60000"></label>
+      <label>年龄 AGE<input name="AGE" value="32"></label>
+      <label>性别 SEX
+        <select name="SEX"><option value="1">男</option><option value="2" selected>女</option></select>
+      </label>
+    </div>
+    <div class="row">
+      <label>教育 EDUCATION
+        <select name="EDUCATION">
+          <option value="1">研究生</option><option value="2" selected>大学</option>
+          <option value="3">高中</option><option value="4">其他</option>
+        </select>
+      </label>
+      <label>婚姻 MARRIAGE
+        <select name="MARRIAGE"><option value="1">已婚</option><option value="2" selected>未婚</option><option value="3">其他</option></select>
+      </label>
+      <label>申请号 ID<input name="ID" value="90001"></label>
+    </div>
+
+    <h2 style="margin-top:18px">近 6 个月还款状态（-2 无消费，0 正常，≥1 逾期月数）</h2>
+    <div class="row">
+      <label>PAY_0<input name="PAY_0" value="0"></label>
+      <label>PAY_2<input name="PAY_2" value="0"></label>
+      <label>PAY_3<input name="PAY_3" value="0"></label>
+      <label>PAY_4<input name="PAY_4" value="0"></label>
+      <label>PAY_5<input name="PAY_5" value="0"></label>
+      <label>PAY_6<input name="PAY_6" value="0"></label>
+    </div>
+
+    <h2 style="margin-top:18px">近 6 个月账单金额（元）</h2>
+    <div class="row">
+      <label>BILL_1<input name="BILL_AMT1" value="18000"></label>
+      <label>BILL_2<input name="BILL_AMT2" value="17500"></label>
+      <label>BILL_3<input name="BILL_AMT3" value="16000"></label>
+      <label>BILL_4<input name="BILL_AMT4" value="15000"></label>
+      <label>BILL_5<input name="BILL_AMT5" value="14000"></label>
+      <label>BILL_6<input name="BILL_AMT6" value="13000"></label>
+    </div>
+
+    <h2 style="margin-top:18px">近 6 个月还款金额（元）</h2>
+    <div class="row">
+      <label>PAY_AMT1<input name="PAY_AMT1" value="2000"></label>
+      <label>PAY_AMT2<input name="PAY_AMT2" value="2000"></label>
+      <label>PAY_AMT3<input name="PAY_AMT3" value="1800"></label>
+      <label>PAY_AMT4<input name="PAY_AMT4" value="1800"></label>
+      <label>PAY_AMT5<input name="PAY_AMT5" value="1500"></label>
+      <label>PAY_AMT6<input name="PAY_AMT6" value="1500"></label>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="score()">提交评估</button>
+      <button class="ghost" onclick="preset('low')">低风险样例</button>
+      <button class="ghost" onclick="preset('high')">高风险样例</button>
+      <button class="ghost" onclick="preset('bad')">脏数据样例</button>
+    </div>
+    <p class="hint">演示只调用本机模型与三个技能，不联网、不保存输入；"建议拒绝" 仍需人工确认，系统不会自动拒贷。</p>
+  </section>
+
+  <section class="card" id="result">
+    <h2>评估结果</h2>
+    <div class="result-empty" id="empty">填好左侧信息后点击「提交评估」<br>或直接点一个样例按钮</div>
+    <div id="content" style="display:none"></div>
+  </section>
+</main>
+<footer>CreditGuard v1.0 · 机器学习课程期末项目 · 数据：UCI Default of Credit Card Clients (CC BY 4.0)</footer>
+
+<script>
+const FIELDS = ["ID","LIMIT_BAL","SEX","EDUCATION","MARRIAGE","AGE",
+  "PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6",
+  "BILL_AMT1","BILL_AMT2","BILL_AMT3","BILL_AMT4","BILL_AMT5","BILL_AMT6",
+  "PAY_AMT1","PAY_AMT2","PAY_AMT3","PAY_AMT4","PAY_AMT5","PAY_AMT6"];
+
+const PRESETS = {
+  low: {LIMIT_BAL:120000, SEX:2, EDUCATION:2, MARRIAGE:2, AGE:38,
+        PAY_0:-1, PAY_2:-1, PAY_3:-1, PAY_4:-1, PAY_5:-2, PAY_6:-2,
+        BILL_AMT1:8000, BILL_AMT2:7600, BILL_AMT3:7200, BILL_AMT4:6800, BILL_AMT5:6500, BILL_AMT6:6000,
+        PAY_AMT1:3000, PAY_AMT2:2800, PAY_AMT3:2600, PAY_AMT4:2400, PAY_AMT5:2200, PAY_AMT6:2000},
+  high: {LIMIT_BAL:20000, SEX:1, EDUCATION:3, MARRIAGE:1, AGE:24,
+         PAY_0:3, PAY_2:3, PAY_3:2, PAY_4:2, PAY_5:1, PAY_6:1,
+         BILL_AMT1:19500, BILL_AMT2:19800, BILL_AMT3:19000, BILL_AMT4:18500, BILL_AMT5:18000, BILL_AMT6:17500,
+         PAY_AMT1:0, PAY_AMT2:500, PAY_AMT3:0, PAY_AMT4:0, PAY_AMT5:0, PAY_AMT6:300},
+  bad: {LIMIT_BAL:3000, SEX:1, EDUCATION:9, MARRIAGE:1, AGE:15,
+        PAY_0:0, PAY_2:0, PAY_3:0, PAY_4:0, PAY_5:0, PAY_6:0,
+        BILL_AMT1:1000, BILL_AMT2:900, BILL_AMT3:800, BILL_AMT4:700, BILL_AMT5:600, BILL_AMT6:500,
+        PAY_AMT1:100, PAY_AMT2:100, PAY_AMT3:100, PAY_AMT4:100, PAY_AMT5:100, PAY_AMT6:100}
+};
+
+function preset(name) {
+  const data = PRESETS[name];
+  for (const key of FIELDS) {
+    const el = document.querySelector(`[name="${key}"]`);
+    if (!el) continue;
+    if (data[key] === undefined) { el.value = ""; continue; }
+    el.value = data[key];
+  }
+  score();
+}
+
+function collect() {
+  const payload = {};
+  for (const key of FIELDS) {
+    const el = document.querySelector(`[name="${key}"]`);
+    if (el && el.value !== "") payload[key] = el.value;
+  }
+  return payload;
+}
+
+async function score() {
+  const content = document.getElementById("content");
+  const empty = document.getElementById("empty");
+  empty.style.display = "none";
+  content.style.display = "block";
+  content.innerHTML = "<div class='result-empty'>评估中…</div>";
+  try {
+    const resp = await fetch("/api/score", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(collect())
+    });
+    const data = await resp.json();
+    if (data.error) { content.innerHTML = `<div class="flags">出错了：${data.error}</div>`; return; }
+    render(data);
+  } catch (err) {
+    content.innerHTML = `<div class="flags">请求失败：${err}</div>`;
+  }
+}
+
+function render(d) {
+  const box = document.getElementById("content");
+  if (d.p === null || d.p === undefined) {
+    box.innerHTML = `
+      <span class="badge C">退回补件</span>
+      <div class="kv"><span>状态</span><span>${d.action}</span></div>
+      <div class="flags">${(d.flags || []).join("；") || "输入异常"}</div>
+      <p class="note">数据审计技能在评分前拦截了这条记录，避免脏数据产生"看似正常"的分数。</p>`;
+    return;
+  }
+  const pct = (d.p * 100).toFixed(1);
+  const bandName = {A: "低风险", B: "中风险", C: "高风险"}[d.band] || d.band;
+  const risk = (d.risk_factors || []).map(x => `<li>${x}</li>`).join("") || "<li>无显著风险因素</li>";
+  const good = (d.protective_factors || []).map(x => `<li>${x}</li>`).join("");
+  box.innerHTML = `
+    <span class="badge ${d.band}">${bandName} · ${d.band}</span>
+    <div class="prob">${pct}<span style="font-size:16px;color:#6b7280">%</span></div>
+    <div style="font-size:13px;color:#6b7280">预测违约概率</div>
+    <div class="kv" style="margin-top:12px"><span>建议动作</span><span>${d.action}</span></div>
+    <div class="kv"><span>依据</span><span style="text-align:right">${d.rationale || ""}</span></div>
+    <div style="margin-top:12px;font-size:13px;font-weight:600">风险因素</div>
+    <ul class="factors">${risk}</ul>
+    ${good ? `<div style="margin-top:8px;font-size:13px;font-weight:600">缓释因素</div><ul class="factors">${good}</ul>` : ""}
+    ${(d.flags || []).length ? `<div class="flags">数据标记：${d.flags.join("；")}</div>` : ""}
+    <p class="note">阈值：复核线 ${(d.thresholds.review * 100).toFixed(1)}%，建议拒绝线 ${(d.thresholds.decline * 100).toFixed(1)}%。${d.action.indexOf("拒绝") >= 0 ? "该结论必须由人工签署后生效。" : ""}</p>`;
+}
+</script>
+</body>
+</html>
